@@ -1,0 +1,89 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Control del Box Model */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+}
+
+.navbar {
+    background: #2c3e50;
+    color: white;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+}
+
+.container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.hero {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: #fff;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+}
+
+
+.cards-container {
+    display: flex;
+    flex-direction: column; 
+    gap: 1.5rem;
+}
+
+.card {
+    background: #3498db;
+    color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+}
+
+footer {
+    text-align: center;
+    padding: 2rem;
+    background: #34495e;
+    color: white;
+    margin-top: 2rem;
+}
+
+@media (min-width: 769px) {
+    .navbar {
+        flex-direction: row; 
+        justify-content: space-between;
+    }
+
+    .cards-container {
+        flex-direction: row; 
+        justify-content: space-around;
+    }
+
+    .card {
+        flex: 1; 
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+    }
+}
