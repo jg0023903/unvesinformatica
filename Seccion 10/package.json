@@ -1,0 +1,20 @@
+{
+  "name": "unvesinformaticarepositorio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jg0023903/unvesinformatica.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jg0023903/unvesinformatica/issues"
+  },
+  "homepage": "https://github.com/jg0023903/unvesinformatica#readme"
+}

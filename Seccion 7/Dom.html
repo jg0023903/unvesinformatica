@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sesión 7 DOM</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+
+    /* Formulario */
+    #taskForm {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    #taskInput {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #taskInput:focus {
+      border-color: #1D9E75;
+    }
+
+    #taskForm button {
+      padding: 10px 18px;
+      background: #1D9E75;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #taskForm button:hover {
+      background: #0F6E56;
+    }
+
+    /* Filtros */
+    .filters {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .filter-btn {
+      padding: 5px 14px;
+      font-size: 13px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn.active {
+      background: #1D9E75;
+      color: white;
+      border-color: #1D9E75;
+    }
+
+    /* Stats */
+    #stats {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 12px;
+      min-height: 18px;
+    }
+
+    #stats span {
+      font-weight: 600;
+      color: #333;
+    }
+
+    /* Mensaje vacío */
+    #emptyMessage {
+      text-align: center;
+      padding: 32px 16px;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    /* Lista de tareas */
+    #taskList {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      transition: border-color 0.15s;
+    }
+
+    .task-item:hover {
+      border-color: #ccc;
+    }
+
+    .task-item.done {
+      opacity: 0.6;
+    }
+
+    /* Checkbox circular */
+    .task-check {
+      width: 22px;
+      height: 22px;
+      border: 2px solid #ccc;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+      font-size: 13px;
+      color: white;
+    }
+
+    .task-item.done .task-check {
+      background: #1D9E75;
+      border-color: #1D9E75;
+    }
+
+    /* Texto de la tarea */
+    .task-text {
+      flex: 1;
+      font-size: 14px;
+      color: #333;
+      word-break: break-word;
+    }
+
+    .task-item.done .task-text {
+      text-decoration: line-through;
+      color: #999;
+    }
+
+    /* Botón eliminar */
+    .btn-del {
+      padding: 4px 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-del:hover {
+      border-color: #e24b4a;
+      color: #e24b4a;
+      background: #fff0f0;
+    }
+
+    /* Botón limpiar completadas */
+    #clearDone {
+      margin-top: 16px;
+      width: 100%;
+      padding: 9px;
+      font-size: 13px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: transparent;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    #clearDone:hover:not(:disabled) {
+      border-color: #e24b4a;
+      color: #e24b4a;
+    }
+
+    #clearDone:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="app">
+    <h1>Mi lista de tareas</h1>
+
+    <form id="taskForm">
+      <input type="text" id="taskInput" placeholder="Escribe una tarea..." maxlength="120">
+      <button type="submit">Agregar</button>
+    </form>
+
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Todas</button>
+      <button class="filter-btn" data-filter="pending">Pendientes</button>
+      <button class="filter-btn" data-filter="done">Completadas</button>
+    </div>
+
+    <p id="stats"></p>
+    <p id="emptyMessage">No hay tareas registradas.</p>
+    <ul id="taskList"></ul>
+    <button id="clearDone" disabled>Limpiar completadas</button>
+  </main>
+
+  <script>
+    // ── Selección de elementos ──────────────────────────────
+    const taskForm     = document.querySelector("#taskForm");
+    const taskInput    = document.querySelector("#taskInput");
+    const taskList     = document.querySelector("#taskList");
+    const emptyMessage = document.querySelector("#emptyMessage");
+    const statsEl      = document.querySelector("#stats");
+    const clearDoneBtn = document.querySelector("#clearDone");
+    const filterBtns   = document.querySelectorAll(".filter-btn");
+
+    // ── Estado ──────────────────────────────────────────────
+    let tasks = [];
+    let currentFilter = "all";
+
+    // ── localStorage ────────────────────────────────────────
+    function saveTasks() {
+      localStorage.setItem("sesion7_tasks", JSON.stringify(tasks));
+    }
+
+    function loadTasks() {
+      const saved = localStorage.getItem("sesion7_tasks");
+      if (saved) tasks = JSON.parse(saved);
+    }
+
+    // ── Actualizar stats y botón limpiar ────────────────────
+    function updateStats() {
+      const total   = tasks.length;
+      const done    = tasks.filter(t => t.done).length;
+      const pending = total - done;
+
+      if (total === 0) {
+        statsEl.textContent = "";
+      } else {
+        statsEl.innerHTML =
+          `<span>${pending}</span> pendiente${pending !== 1 ? "s" : ""} · ` +
+          `<span>${done}</span> completada${done !== 1 ? "s" : ""}`;
+      }
+
+      clearDoneBtn.disabled = done === 0;
+    }
+
+    // ── Filtrar tareas según filtro activo ──────────────────
+    function getVisibleTasks() {
+      if (currentFilter === "pending") return tasks.filter(t => !t.done);
+      if (currentFilter === "done")    return tasks.filter(t =>  t.done);
+      return tasks;
+    }
+
+    // ── Renderizar la lista ─────────────────────────────────
+    function render() {
+      const visible = getVisibleTasks();
+      taskList.innerHTML = "";
+
+      emptyMessage.style.display = visible.length === 0 ? "block" : "none";
+
+      visible.forEach(function(task) {
+        const li = document.createElement("li");
+        li.classList.add("task-item");
+        if (task.done) li.classList.add("done");
+
+        // Checkbox circular
+        const check = document.createElement("div");
+        check.classList.add("task-check");
+        check.textContent = task.done ? "✓" : "";
+        check.addEventListener("click", function() {
+          toggleTask(task.id);
+        });
+
+        // Texto de la tarea
+        const span = document.createElement("span");
+        span.classList.add("task-text");
+        span.textContent = task.text;
+
+        // Botón eliminar
+        const deleteBtn = document.createElement("button");
+        deleteBtn.classList.add("btn-del");
+        deleteBtn.textContent = "✕";
+        deleteBtn.addEventListener("click", function() {
+          deleteTask(task.id);
+        });
+
+        li.appendChild(check);
+        li.appendChild(span);
+        li.appendChild(deleteBtn);
+        taskList.appendChild(li);
+      });
+
+      updateStats();
+      saveTasks();
+    }
+
+    // ── Crear tarea ─────────────────────────────────────────
+    function createTask(text) {
+      tasks.push({
+        id:   Date.now(),
+        text: text.trim(),
+        done: false
+      });
+      render();
+    }
+
+    // ── Completar / descompletar tarea ──────────────────────
+    function toggleTask(id) {
+      const task = tasks.find(function(t) { return t.id === id; });
+      if (task) {
+        task.done = !task.done;
+        render();
+      }
+    }
+
+    // ── Eliminar tarea ──────────────────────────────────────
+    function deleteTask(id) {
+      tasks = tasks.filter(function(t) { return t.id !== id; });
+      render();
+    }
+
+    // ── Evento: submit del formulario ───────────────────────
+    taskForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const text = taskInput.value.trim();
+      if (text === "") return;
+      createTask(text);
+      taskInput.value = "";
+      taskInput.focus();
+    });
+
+    // ── Evento: filtros ─────────────────────────────────────
+    filterBtns.forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        filterBtns.forEach(function(b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        currentFilter = btn.dataset.filter;
+        render();
+      });
+    });
+
+    // ── Evento: limpiar completadas ─────────────────────────
+    clearDoneBtn.addEventListener("click", function() {
+      tasks = tasks.filter(function(t) { return !t.done; });
+      render();
+    });
+
+    // ── Inicializar ─────────────────────────────────────────
+    loadTasks();
+    render();
+  </script>
+
+</body>
+</html>
